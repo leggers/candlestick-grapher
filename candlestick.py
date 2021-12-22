@@ -1,4 +1,3 @@
-from enum import unique
 import streamlit as st
 import plotly.graph_objects as go
 import plotly.subplots as sp
@@ -42,9 +41,9 @@ fig.add_trace(go.Candlestick(
                 row=1,
                 col=1)
 
-fig.add_trace(go.Bar(x=five_min_data['time'], y=five_min_data['volume'], showlegend=False),
-               row=2,
-               col=1)
+# fig.add_trace(go.Bar(x=five_min_data['time'], y=five_min_data['volume'], showlegend=False),
+#                row=2,
+#                col=1)
 
 fig.add_trace(go.Candlestick(
                 x=data['time'],
