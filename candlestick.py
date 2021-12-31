@@ -17,10 +17,13 @@ DATA_DIR = Path("/Users/leggers/Documents/stonk_data")
 
 date_folders = [x for x in DATA_DIR.iterdir() if x.is_dir()]
 dates_available = list(map(lambda d: d.name, date_folders))
+dates_available.sort()
+dates_available.reverse()
 dates_to_tickers = {}
 for date_folder in date_folders:
   csvs = filter(lambda f: CSV_NAME_RE.match(f.name), list(date_folder.glob('**/*.csv')))
-  unique_tickers = set(map(lambda f: CSV_NAME_RE.search(f.name).group(1), csvs))
+  unique_tickers = list(set(map(lambda f: CSV_NAME_RE.search(f.name).group(1), csvs)))
+  unique_tickers.sort()
   dates_to_tickers[date_folder.name] = unique_tickers
 
 data_date = st.selectbox("Data date:", dates_available)
