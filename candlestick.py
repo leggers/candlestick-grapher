@@ -4,9 +4,9 @@ import plotly.subplots as sp
 import pandas as pd
 from datetime import timedelta
 import json
-
 import re
 from pathlib import Path
+from talib.abstract import EMA
 
 ################################################################################
 # Date and ticker selector
@@ -55,6 +55,11 @@ tick_data['vwap'] = list(map(lambda t: float(t.split(';')[4]), tick_data['tick']
 tick_data['time'] = pd.to_datetime(tick_data['recordedAt'])
 
 ################################################################################
+# Compute indicators
+ema9_key = 'EMA(9)'
+five_min_data[ema9_key] = EMA(five_min_data['close'], timeperiod=9)
+
+################################################################################
 # Draw plots
 
 fig = sp.make_subplots(
@@ -65,51 +70,61 @@ fig = sp.make_subplots(
 
 # one minute data
 fig.add_trace(go.Candlestick(
-                x=one_min_data['adjusted_time'],
-                open=one_min_data['open'],
-                high=one_min_data['high'],
-                low=one_min_data['low'],
-                close=one_min_data['close'],
-                name=symbol + ' 1m'),
-              row=1,
-              col=1)
+    x=one_min_data['adjusted_time'],
+    open=one_min_data['open'],
+    high=one_min_data['high'],
+    low=one_min_data['low'],
+    close=one_min_data['close'],
+    name=symbol + ' 1m'),
+  row=1,
+  col=1)
 
 # five minute data
 fig.add_trace(go.Candlestick(
-                  x=five_min_data['adjusted_time'],
-                  open=five_min_data['open'],
-                  high=five_min_data['high'],
-                  low=five_min_data['low'],
-                  close=five_min_data['close'],
-                  name=symbol + ' 5m',
-                  ),
-                row=1,
-                col=1)
+    x=five_min_data['adjusted_time'],
+    open=five_min_data['open'],
+    high=five_min_data['high'],
+    low=five_min_data['low'],
+    close=five_min_data['close'],
+    name=symbol + ' 5m',
+    visible='legendonly'),
+  row=1,
+  col=1)
 
 # tick data
 fig.add_trace(go.Scatter(
-  x=tick_data['time'],
-  y=tick_data['price'],
-  line=go.scatter.Line(color='black', width=0.3),
-  name=f"{symbol} ticks"),
+    x=tick_data['time'],
+    y=tick_data['price'],
+    line=go.scatter.Line(color='black', width=0.3),
+    name=f"{symbol} ticks",
+    visible='legendonly'),
   row=1,
   col=1)
 
 # VWAP
 fig.add_trace(go.Scatter(
-  x=tick_data['time'],
-  y=tick_data['vwap'],
-  line=go.scatter.Line(color='orange', width=0.3),
-  name=f"{symbol} reported VWAP"),
+    x=tick_data['time'],
+    y=tick_data['vwap'],
+    line=go.scatter.Line(color='orange', width=0.3),
+    name=f"{symbol} reported VWAP"),
+  row=1,
+  col=1)
+
+# EMA(9)
+fig.add_trace(go.Scatter(
+    x=five_min_data['time'],
+    y=five_min_data[ema9_key],
+    line=go.scatter.Line(color='grey', width=0.3),
+    name=f"{symbol} EMA(9)"),
   row=1,
   col=1)
 
 # Candle-computed VWAP
 fig.add_trace(go.Scatter(
-  x=one_min_data['adjusted_time'],
-  y=one_min_data['vwap'],
-  line=go.scatter.Line(color='green', width=0.3),
-  name=f"{symbol} computed VWAP"),
+    x=one_min_data['adjusted_time'],
+    y=one_min_data['vwap'],
+    line=go.scatter.Line(color='green', width=0.3),
+    name=f"{symbol} computed VWAP"),
   row=1,
   col=1)
 
